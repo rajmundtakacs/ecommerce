@@ -1,43 +1,21 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const passport = require('./middleware/auth');
 const swaggerUI = require('swagger-ui-express');
-const swaggerJSDoc = require('swagger-jsdoc');
-const app = express();
+const swaggerDocs = require('./utils/swagger');
+const helmet = require('helmet');
+
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/carts');
 const orderRoutes = require('./routes/orders');
+
+const app = express();
 const PORT = 8000;
-require('dotenv').config();
 
-// Defining the OpenAPI spec path
-const swaggerOptions = {
-    swaggerDefinition: {
-      openapi: '3.0.0',
-      info: {
-        title: 'E-commerce API',
-        description: 'This is the API documentation for the E-commerce application.',
-        version: '1.0.0',
-        contact: {
-          name: 'Rajmund Takács',
-          email: 'rajmi@rajmi.com',
-          url: 'http://rajmi.com',
-        },
-      },
-      servers: [
-        {
-          url: 'http://localhost:8000',
-          description: 'Local server',
-        },
-      ],
-    },
-    // Point to the YAML file
-    apis: ['./api.yaml'],
-  };
-
-// Initializing the swagger-jsdoc
-const swaggerDocs = swaggerJSDoc(swaggerOptions);
+// Helmet security headers
+app.use(helmet());
 
 // Setting up Swagger UI route
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
@@ -46,19 +24,22 @@ app.use(express.json()); // Middleware for parsing JSON req bodies
 
 // root
 app.get('/', (req, res) => {
-    res.send('Hello, this is an ecommerce server');
+    res.redirect('/api-docs');
 });
 
 // Setup Express-session middleware to manage user sessions
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax'
+    }
 }));
-
 // Initialize Passport middleware (for authentication handling)
 app.use(passport.initialize());
-
 // Enable Passport middleware to use session-based authentication (combine the passport middleware and express-session)
 app.use(passport.session());
 
