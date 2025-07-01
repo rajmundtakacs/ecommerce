@@ -8,7 +8,7 @@ const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/carts');
 const orderRoutes = require('./routes/orders');
-const PORT = 3000;
+const PORT = 8000;
 require('dotenv').config();
 
 // Defining the OpenAPI spec path
@@ -27,7 +27,7 @@ const swaggerOptions = {
       },
       servers: [
         {
-          url: 'http://localhost:3000',
+          url: 'http://localhost:8000',
           description: 'Local server',
         },
       ],
