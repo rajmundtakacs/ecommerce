@@ -1,0 +1,3 @@
+- Adding user authentication security to all routes related to users. (only checkout has it)
+- Swagger documentation
+
