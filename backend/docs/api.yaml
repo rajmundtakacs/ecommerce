@@ -490,8 +490,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: '#/components/schemas/Cart'
         '404':
           description: Cart not found
@@ -568,7 +566,7 @@ paths:
                  - product_id
                  - quantity
       responses:
-        '200':
+        '201':
           description: Cart item added or updated successfully
           content:
             application/json:
@@ -740,6 +738,9 @@ components:
           type: integer
         user_id:
           type: integer
+        total_price:
+          type: number
+          format: float
     
     CartItem:
       type: object

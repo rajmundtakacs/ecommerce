@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const logger = require('../utils/logger');
 const {
     getOrders,
     getOrdersByUserId,
@@ -11,9 +12,10 @@ const {
 router.get('/', async (req, res) => {
     try {
         const result = await getOrders();
+        logger.info(`Fetched all orders`);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error fetching orders: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching orders');
     }
 });
@@ -23,9 +25,10 @@ router.get('/user/:user_id', async (req, res) => {
     try {
         const { user_id } = req.params;
         const result = await getOrdersByUserId(user_id);
+        logger.info(`Fetched orders for user_id=${user_id}`);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error fetching orders for user_id=${req.params.user_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching orders');
     }
 });
@@ -37,12 +40,14 @@ router.get('/:id', async (req, res) => {
         const result = await getOrderById(id);
 
         if (!result.rows.length) {
+            logger.warn(`Order id=${id} not found`);
             return res.status(404).json({ error: 'Order not found' });
         }
-        
+
+        logger.info(`Fetched order id=${id}`);
         res.json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+                logger.error(`Error fetching order id=${id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching order');
     }
 });
@@ -52,9 +57,10 @@ router.get('/:id/items', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await getOrderItems(id);
+        logger.info(`Fetched items for order id=${id}`);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error fetching items for order id=${req.params.id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching items for the order');
     }
 });

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const logger = require('../utils/logger');
 
 const {
     getCarts,
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
         const result = await getCarts();
         res.json(result.rows);
     } catch (err) {
-        console.err(err);
+        logger.error(`Error fetching all carts: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching carts');
     }
 });
@@ -39,8 +40,8 @@ router.get('/user/:user_id', async (req, res) => {
         const result = await getCartsByUserId(user_id);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Error fetching carts');
+        logger.error(`Error fetching cart(s) for user_id=${req.params.user_id}: ${err.message}`, { stack: err.stack });
+        res.status(500).send('Error fetching cart(s)');
     }
 });
 
@@ -51,12 +52,14 @@ router.get('/:id', async (req, res) => {
         const result = await getCartById(id);
 
         if (!result.rows.length) {
+            logger.warn(`Cart id=${id} not found`);
             return res.status(404).json({ error: 'Cart not found' });
         }
 
+        logger.info(`Fetched cart id=${id}`);
         res.json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error fetching cart id=${req.params.id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching the cart');
     }
 });
@@ -66,9 +69,10 @@ router.post('/', async (req, res) => {
     try {
         const { user_id } = req.body;
         const result = await createCart(user_id);
+        logger.info(`Created cart for user_id=${user_id}`);
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error creating cart for user_id=${req.body.user_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error creating cart')
     }
 });
@@ -78,9 +82,10 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await deleteCart(id);
+        logger.info(`Deleted cart id=${id}`);
         res.status(200).send(`Cart with ID ${id} deleted`);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error deleting cart id=${req.params.id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error deleting cart');
     }
 });
@@ -92,9 +97,10 @@ router.get('/:cart_id/items', async (req, res) => {
     try {
         const { cart_id } = req.params;
         const result = await getCartItems(cart_id);
+        logger.info(`Fetched items for cart_id=${cart_id}`);
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error fetching items for cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching cart items');
     }
 });
@@ -105,9 +111,10 @@ router.post('/:cart_id/items', async (req, res) => {
         const { cart_id } = req.params;
         const { product_id, quantity } = req.body;
         const result = await addOrUpdateCartItem(cart_id, product_id, quantity);
+        logger.info(`Added/updated product_id=${product_id} in cart_id=${cart_id} with quantity=${quantity}`);
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error adding/updating product_id=${req.body.product_id} in cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error adding or updating item');
     }
 });
@@ -118,9 +125,10 @@ router.put('/:cart_id/items/:product_id', async (req, res) => {
         const { cart_id, product_id } = req.params;
         const { quantity } = req.body;
         const result = await updateCartItemQuantity(cart_id, product_id, quantity);
+        logger.info(`Updated quantity=${quantity} for product_id=${product_id} in cart_id=${cart_id}`);
         res.json(result.rows[0]);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error updating quantity for product_id=${req.params.product_id} in cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error updating cart item quantity');
     }
 });
@@ -130,9 +138,10 @@ router.delete('/:cart_id/items/:product_id', async (req, res) => {
     try {
         const { cart_id, product_id } = req.params;
         await removeCartItem(cart_id, product_id);
+        logger.info(`Removed product_id=${product_id} from cart_id=${cart_id}`);
         res.status(200).send(`Item ${product_id} removed from cart ${cart_id}`);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error removing product_id=${req.params.product_id} from cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error removing item from cart');
     }
 });
@@ -142,9 +151,10 @@ router.delete('/:cart_id/clear', async (req, res) => {
     try {
         const { cart_id } = req.params;
         await clearCart(cart_id);
-        res.status(200).send(`All item removed from cart ${cart_id}`);
+        logger.info(`Cleared cart_id=${cart_id}`);
+        res.status(200).send(`All items removed from cart ${cart_id}`);
     } catch (err) {
-        console.error(err);
+        logger.error(`Error clearing cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error clearing cart');
     }
 });
@@ -156,6 +166,7 @@ router.post('/:id/checkout', async (req, res) => {
 
     // Check if the user is authenticated
     if (!req.user) {
+        logger.warn(`Unauthorized checkout attempt for cart_id=${id}`);
         return res.status(401).send('You must be logged in to checkout');
     }
 
@@ -166,6 +177,7 @@ router.post('/:id/checkout', async (req, res) => {
         // Cart validation
         const cartResult = await getCartById(id);
         if (cartResult.rows.length === 0) {
+            logger.warn(`Checkout failed: cart_id=${id} not found`);
             return res.status(404).send('Cart not found');
         }
 
@@ -174,6 +186,7 @@ router.post('/:id/checkout', async (req, res) => {
         const cartItems = cartItemsResult.rows;
 
         if (cartItems.length === 0) {
+            logger.warn(`Checkout failed: cart_id=${id} is empty`);
             return res.status(400).send('Cart is empty');
         }
 
@@ -191,13 +204,14 @@ router.post('/:id/checkout', async (req, res) => {
         await clearCart(id);
 
         // Returning the created order
+        logger.info(`Checkout successful for cart_id=${id}, created order_id=${order_id}`);
         res.status(201).json({
             message: 'Checkout successful!',
             order: orderResult.rows[0]
         });
 
     } catch (err) {
-        console.error(err);
+        logger.error(`Error processing checkout for cart_id=${id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error processing checkout')
     }
 });
