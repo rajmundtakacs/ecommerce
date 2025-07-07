@@ -73,7 +73,7 @@ router.post('/register', async (req, res) => {
 
     } catch (err) {
         logger.error(`Error creating user email=${email}: ${err.message}`, { stack: err.stack });
-        res.status(500).send('Error creating user')
+        res.status(500).json({ error: 'Error creating user' });
     }
 });
 
@@ -130,7 +130,7 @@ router.put('/:id', async (req, res) => {
 
     } catch (err) {
         logger.error(`Error updating user id=${id}: ${err.message}`, { stack: err.stack });
-        res.status(500).send('Error updating user');
+        res.status(500).json({ error: 'Error updating user' });
     }
 });
 
@@ -149,7 +149,7 @@ router.delete('/:id', async (req, res) => {
         res.status(200).send(`User with ID ${id} deleted`);
     } catch (err) {
         logger.error(`Error deleting user id=${id}: ${err.message}`, { stack: err.stack });
-        res.status(500).send('Error deleting user')
+        res.status(500).json({ error: 'Error deleting user' });
     }
 });
 
