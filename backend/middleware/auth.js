@@ -48,7 +48,7 @@ passport.use(
     new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: 'auth/google/callback'
+        callbackURL: "http://localhost:8000/auth/google/callback"
     },
     async (accessToken, refreshToken, profile, done) => {
         try {
@@ -75,7 +75,7 @@ passport.use(
     new FacebookStrategy({
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,
-        callbackURL: 'auth/facebook/callback',
+        callbackURL: "http://localhost:8000/auth/facebook/callback",
         profileFields: ['id', 'displayName', 'emails']
     },
     async (accessToken, refreshToken, profile, done) => {
