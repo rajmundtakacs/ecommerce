@@ -45,10 +45,10 @@ router.get('/:id', async (req, res) => {
 
 // POST - Register a new user
 router.post('/register', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     // Validation - checking if all fields are provided
-    if(!name || !email || !password) {
+    if(!username || !email || !password) {
         logger.warn(`Missing fields in register request`);
         return res.status(400).json({ error: 'Invalid input data. Please provide a name, email and password.'});
     }
@@ -59,7 +59,7 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Calling the query function to add the user
-        const result = await addUser(name, email, hashedPassword);
+        const result = await addUser(username, email, hashedPassword);
 
         const newUser = result.rows[0];
 
@@ -67,7 +67,7 @@ router.post('/register', async (req, res) => {
         logger.info(`Registered new user email=${email}`);
         res.status(201).json({
             id: newUser.id,
-            name: newUser.name,
+            username: newUser.username,
             email: newUser.email
         });
 

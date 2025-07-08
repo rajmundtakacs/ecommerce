@@ -7,7 +7,7 @@ const RegistrationPage = () => {
     const navigate = useNavigate();
 
     // States
-    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -26,7 +26,7 @@ const RegistrationPage = () => {
             const registerResponse = await fetch('/users/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ username, email, password }),
             });
 
             if (!registerResponse.ok) {
@@ -63,11 +63,11 @@ const RegistrationPage = () => {
             <form onSubmit={handleSubmit}>
                 
                 <div>
-                    <label>Name</label>
+                    <label>Username</label>
                     <input
                         type="text"
-                        value={name}
-                        onChange= {(e) => setName(e.target.value)}
+                        value={username}
+                        onChange= {(e) => setUsername(e.target.value)}
                         required
                     />
                 </div>
