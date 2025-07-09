@@ -1,4 +1,5 @@
 - Adding user authentication security to all routes related to users. (only checkout has it)
 - Json responses everywhere!
 - Update swagger doc!
+- Email variables back for FB login LIVE mode!
 

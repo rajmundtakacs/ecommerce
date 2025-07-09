@@ -38,10 +38,10 @@ const getUserByFacebookId = (facebookId) => {
 };
 
 // Create user by with Facebook
-const createUserWithFacebook = ({ facebookId, username, email }) => {
+const createUserWithFacebook = ({ facebookId, username,}) => {
     return query(
-        'INSERT INTO users (facebook_id, username, email) VALUES ($1, $2, $3) RETURNING *',
-        [facebookId, username, email]
+        'INSERT INTO users (facebook_id, username) VALUES ($1, $2) RETURNING *',
+        [facebookId, username]
     );
 };
 

@@ -106,9 +106,9 @@ router.post('/google', async (req, res) => {
 
 // POST - Login or register with Facebook
 router.post('/facebook', async (req, res) => {
-    const { facebookId, username, email } = req.body;
+    const { facebookId, username } = req.body;
 
-    if (!facebookId || !username || !email) {
+    if (!facebookId || !username) {
         logger.warn(`Missing fields in Facebook auth request`);
         return res.status(400).json({ error: 'Invalid input data. Please provide facebookId, username and email.'});
     }
@@ -120,7 +120,7 @@ router.post('/facebook', async (req, res) => {
 
         // If not found, create
         if (!user) {
-            result = await createUserWithFacebook({ facebookId, username, email });
+            result = await createUserWithFacebook({ facebookId, username });
             user = result.rows[0];
             logger.info(`Created new user with Facebook id=${user.id}`);
         } else {
@@ -130,7 +130,6 @@ router.post('/facebook', async (req, res) => {
         return res.json({
             id: user.id,
             username: user.name,
-            email: user.email
         });
 
     } catch (err) {
