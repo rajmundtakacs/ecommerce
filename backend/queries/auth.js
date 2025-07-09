@@ -6,10 +6,10 @@ const getUserByEmail = (email) => {
 }
 
 // Add a new user
-const addUser = (name, email, password) => {
+const addUser = (username, email, password) => {
     return query(
         'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
-        [name, email, password]
+        [username, email, password]
     );
 };
 
@@ -21,10 +21,10 @@ const getUserByGoogleId = (googleId) => {
     );
 };
 
-// Create user by with Google
+// Create user with Google
 const createUserWithGoogle = ({ googleId, username, email }) => {
     return query(
-        'INSERT INTO users (google_id, name, email) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3) RETURNING *',
         [googleId, username, email]
     );
 };
@@ -40,7 +40,7 @@ const getUserByFacebookId = (facebookId) => {
 // Create user by with Facebook
 const createUserWithFacebook = ({ facebookId, username, email }) => {
     return query(
-        'INSERT INTO users (facebook_id, name, email) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO users (facebook_id, username, email) VALUES ($1, $2, $3) RETURNING *',
         [facebookId, username, email]
     );
 };

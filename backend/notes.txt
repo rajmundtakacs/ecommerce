@@ -1,3 +1,4 @@
 - Adding user authentication security to all routes related to users. (only checkout has it)
-- Json responses!
+- Json responses everywhere!
+- Update swagger doc!
 

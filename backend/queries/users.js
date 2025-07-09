@@ -11,10 +11,10 @@ const getUserById = (id) => {
 };
 
 // Update user info
-const updateUser = (id, name, email, password) => {
+const updateUser = (id, username, email, password) => {
     return query(
-        'UPDATE users SET name = $1,email = $2, password = $3 WHERE id = $4 RETURNING *',
-        [name, email, password, id]
+        'UPDATE users SET username = $1,email = $2, password = $3 WHERE id = $4 RETURNING *',
+        [username, email, password, id]
     );
 };
 
