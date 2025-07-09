@@ -10,6 +10,7 @@ const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/carts');
 const orderRoutes = require('./routes/orders');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = 8000;
@@ -48,6 +49,7 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/orders', orderRoutes);
+app.use('/auth', authRoutes);
 
 
 app.listen(PORT, () => {

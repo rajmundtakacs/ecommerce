@@ -10,19 +10,6 @@ const getUserById = (id) => {
     return query ('SELECT * FROM users WHERE id = $1', [id]);
 };
 
-// Get user by email
-const getUserByEmail = (email) => {
-    return query ('SELECT * FROM users WHERE email = $1', [email]);
-}
-
-// Add a new user
-const addUser = (name, email, password) => {
-    return query(
-        'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
-        [name, email, password]
-    );
-};
-
 // Update user info
 const updateUser = (id, name, email, password) => {
     return query(
@@ -39,8 +26,6 @@ const deleteUser = (id) => {
 module.exports = {
     getUsers,
     getUserById,
-    getUserByEmail,
-    addUser,
     updateUser,
     deleteUser
 };
