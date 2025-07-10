@@ -1,14 +1,9 @@
 const { query } = require('../db');
 
-// Get user by email
-const getUserByEmail = (email) => {
-    return query ('SELECT * FROM users WHERE email = $1', [email]);
-}
-
 // Add a new user
 const addUser = (username, email, password) => {
     return query(
-        'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
         [username, email, password]
     );
 };
@@ -48,7 +43,6 @@ const createUserWithFacebook = ({ facebookId, username,}) => {
 
 
 module.exports = {
-    getUserByEmail,
     addUser,
     getUserByGoogleId,
     createUserWithGoogle,

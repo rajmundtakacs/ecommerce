@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useLocalAuth } from '../hooks/useLocalAuth';
+import { useSocialAuth } from '../hooks/useSocialAuth';
 
 
 const LoginPage = () => {
@@ -13,35 +15,19 @@ const LoginPage = () => {
     // Error and status
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const { handleGoogleResponse, handleFacebookLogin } = useSocialAuth({
+        navigate,
+        setError,
+        setLoading
+    });
+
     
-    const handleSubmit = async (e) => {
+    const { handleLogin } = useLocalAuth({ navigate, setError, setLoading });
+
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        try {
-
-            // 1. Login
-            const loginResponse = await fetch('/users/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!loginResponse.ok) {
-                const loginError = await loginResponse.json();
-                throw new Error(loginError.error || 'Login unsuccessful');
-            }
-
-            // 2. Navigate further
-            navigate('/');
-
-        } catch (err) {
-            console.error(err);
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        handleLogin({ email, password });
     };
 
     return (
@@ -73,14 +59,23 @@ const LoginPage = () => {
                     {loading ? 'Sending...' : 'Login'}
                 </button>
 
+                <div>
+                    <div id="googleSignInDiv"></div>
+                    <button type="button" onClick={handleFacebookLogin}>Continue with Facebook</button>
+                </div>
+
+                
+
                 {error && <p>{error}</p>}
+
+                <p>
+                Doesn't have an account?
+                <Link to="/register" >Register here</Link>
+                </p>
 
             </form>
 
-            <p>
-                Doesn't have an account?
-                <Link to="/register" >Register here</Link>
-            </p>
+            
 
         </div>
     );

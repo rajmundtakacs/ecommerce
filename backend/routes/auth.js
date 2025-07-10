@@ -65,7 +65,7 @@ router.post('/login', (req, res, next) => {
                 return next(err)
             };
             logger.info(`User id=${user.id} logged in`);
-            return res.json({ id: user.id, name: user.name, email: user.email });
+            return res.json({ id: user.id, username: user.name, email: user.email });
         });
     }) (req, res, next);
 });
@@ -110,7 +110,7 @@ router.post('/facebook', async (req, res) => {
 
     if (!facebookId || !username) {
         logger.warn(`Missing fields in Facebook auth request`);
-        return res.status(400).json({ error: 'Invalid input data. Please provide facebookId, username and email.'});
+        return res.status(400).json({ error: 'Invalid input data. Please provide facebookId and username.'});
     }
 
     try {
@@ -136,6 +136,28 @@ router.post('/facebook', async (req, res) => {
         logger.error(`Error with Facebook login: ${err.message}`, { stack: err.stack });
         res.status(500).json({ error: 'Error with Facebook authentication' });
     }
+});
+
+// POST - Logout
+router.post('/logout', (req, res, next) => {
+    req.logout(function(err) {
+        if (err) {
+            logger.error('Logout error:', err);
+            return next(err);
+        }
+
+        req.session.destroy((sessionErr) => {
+            if (sessionErr) {
+                logger.error(`Session destroy error: ${sessionErr.message}`, { stack: sessionErr.stack });
+
+                return next(sessionErr);
+            }
+
+            res.clearCookie('connect.sid');
+            logger.info(`User logged out. IP: ${req.ip}, user=${req.user?.email || 'unknown'}`);
+            return res.status(200).json({ message: 'Logged out successfully' });
+        });
+    });
 });
 
 
