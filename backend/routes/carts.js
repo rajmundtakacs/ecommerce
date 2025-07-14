@@ -64,19 +64,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST - create a new cart for a user
-router.post('/', async (req, res) => {
-    try {
-        const { user_id } = req.body;
-        const result = await createCart(user_id);
-        logger.info(`Created cart for user_id=${user_id}`);
-        res.status(201).json(result.rows[0]);
-    } catch (err) {
-        logger.error(`Error creating cart for user_id=${req.body.user_id}: ${err.message}`, { stack: err.stack });
-        res.status(500).send('Error creating cart')
-    }
-});
-
 // DELETE a cart by id
 router.delete('/:id', async (req, res) => {
     try {
@@ -105,19 +92,35 @@ router.get('/:cart_id/items', async (req, res) => {
     }
 });
 
-// POST - add or update a cart item
-router.post('/:cart_id/items', async (req, res) => {
+// POST - add or update item in current user's cart
+router.post('/items', async (req, res) => {
     try {
-        const { cart_id } = req.params;
+        const userId = req.user?.id;  // from the session
+        if (!userId) {
+            logger.warn(`Unauthorized add to cart attempt`);
+            return res.status(401).json({ error: "Not logged in" });
+        }
+
+        // check if user already has a cart
+        let cartResult = await getCartsByUserId(userId);
+        if (cartResult.rows.length === 0) {
+            cartResult = await createCart(userId);
+            logger.info(`Created new cart for user_id=${userId}`);
+        }
+        const cartId = cartResult.rows[0].id;
+
+        // add or update the item
         const { product_id, quantity } = req.body;
-        const result = await addOrUpdateCartItem(cart_id, product_id, quantity);
-        logger.info(`Added/updated product_id=${product_id} in cart_id=${cart_id} with quantity=${quantity}`);
+        const result = await addOrUpdateCartItem(cartId, product_id, quantity);
+        logger.info(`User ${userId} added/updated product ${product_id} in cart ${cartId}`);
+
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        logger.error(`Error adding/updating product_id=${req.body.product_id} in cart_id=${req.params.cart_id}: ${err.message}`, { stack: err.stack });
+        logger.error(`Error adding/updating item for user ${req.user?.id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error adding or updating item');
     }
 });
+
 
 // PUT - update the quantity of an item in the cart
 router.put('/:cart_id/items/:product_id', async (req, res) => {
@@ -160,61 +163,48 @@ router.delete('/:cart_id/clear', async (req, res) => {
 });
 
 // POST - Checkout a cart
-router.post('/:id/checkout', async (req, res) => {
-
-    const { id } = req.params;
-
-    // Check if the user is authenticated
-    if (!req.user) {
-        logger.warn(`Unauthorized checkout attempt for cart_id=${id}`);
+router.post('/checkout', async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        logger.warn(`Unauthorized checkout attempt`);
         return res.status(401).send('You must be logged in to checkout');
     }
 
-    const user_id = req.user.id;  // Get user_id from the session
-
     try {
-
-        // Cart validation
-        const cartResult = await getCartById(id);
+        
+        let cartResult = await getCartsByUserId(userId);
         if (cartResult.rows.length === 0) {
-            logger.warn(`Checkout failed: cart_id=${id} not found`);
-            return res.status(404).send('Cart not found');
+            logger.warn(`Checkout failed: no cart for user ${userId}`);
+            return res.status(404).send('No cart found');
         }
+        const cartId = cartResult.rows[0].id;
 
-        // Fetching cart items
-        const cartItemsResult = await getCartItems(id);
+        const cartItemsResult = await getCartItems(cartId);
         const cartItems = cartItemsResult.rows;
 
         if (cartItems.length === 0) {
-            logger.warn(`Checkout failed: cart_id=${id} is empty`);
+            logger.warn(`Checkout failed: cart_id=${cartId} is empty`);
             return res.status(400).send('Cart is empty');
         }
 
-        // Calculating total price for the order
-        const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.total_price), 0)
-
-        // Creating the order (insert into orders table)
-        const orderResult = await createOrder(user_id, id, totalPrice);
-
-        // Creating the order items (moving items from cart to order_items table)
+        const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.total_price), 0);
+        const orderResult = await createOrder(userId, cartId, totalPrice);
         const order_id = orderResult.rows[0].id;
+
         await createOrderItems(order_id, cartItems);
+        await clearCart(cartId);
 
-        // Clearing the cart after successful checkout
-        await clearCart(id);
-
-        // Returning the created order
-        logger.info(`Checkout successful for cart_id=${id}, created order_id=${order_id}`);
+        logger.info(`Checkout successful for user ${userId}, created order_id=${order_id}`);
         res.status(201).json({
             message: 'Checkout successful!',
             order: orderResult.rows[0]
         });
-
     } catch (err) {
-        logger.error(`Error processing checkout for cart_id=${id}: ${err.message}`, { stack: err.stack });
-        res.status(500).send('Error processing checkout')
+        logger.error(`Error processing checkout for user ${userId}: ${err.message}`, { stack: err.stack });
+        res.status(500).send('Error processing checkout');
     }
 });
+
 
 module.exports = router;
 
