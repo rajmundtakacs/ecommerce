@@ -5,6 +5,8 @@ const passport = require('./middleware/auth');
 const swaggerUI = require('swagger-ui-express');
 const swaggerDocs = require('./utils/swagger');
 const helmet = require('helmet');
+const path = require('path');
+const cors = require('cors');
 
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
@@ -17,6 +19,12 @@ const PORT = 8000;
 
 // Helmet security headers
 app.use(helmet());
+
+// CORS middleware
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
 
 // Setting up Swagger UI route
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
@@ -50,6 +58,9 @@ app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/orders', orderRoutes);
 app.use('/auth', authRoutes);
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.listen(PORT, () => {
