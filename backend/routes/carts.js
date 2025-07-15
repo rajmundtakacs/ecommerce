@@ -94,6 +94,7 @@ router.get('/:cart_id/items', async (req, res) => {
 
 // POST - add or update item in current user's cart
 router.post('/items', async (req, res) => {
+    console.log('>>> REQ.USER in /carts/items:', req.user);
     try {
         const userId = req.user?.id;  // from the session
         if (!userId) {

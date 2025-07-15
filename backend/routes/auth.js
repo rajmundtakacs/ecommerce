@@ -71,7 +71,7 @@ router.post('/login', (req, res, next) => {
 });
 
 // POST - Login or register with Google
-router.post('/google', async (req, res) => {
+router.post('/google', async (req, res, next) => {
     const { googleId, username, email } = req.body;
 
     if (!googleId || !username || !email) {
@@ -80,11 +80,9 @@ router.post('/google', async (req, res) => {
     }
 
     try {
-        // Try to find existing user
         let result = await getUserByGoogleId(googleId);
         let user = result.rows[0];
 
-        // If not found, create
         if (!user) {
             result = await createUserWithGoogle({ googleId, username, email });
             user = result.rows[0];
@@ -93,16 +91,24 @@ router.post('/google', async (req, res) => {
             logger.info(`Existing Google user login id=${user.id}`);
         }
 
-        return res.json({
-            id: user.id,
-            username: user.name,
-            email: user.email
+        // Serialize
+        req.login(user, (err) => {
+            if (err) {
+                logger.error(`Session login error for Google user id=${user.id}: ${err.message}`);
+                return next(err);
+            }
+            return res.json({
+                id: user.id,
+                username: user.username,
+                email: user.email
+            });
         });
     } catch (err) {
         logger.error(`Error with Google login: ${err.message}`, { stack: err.stack });
         res.status(500).json({ error: 'Error with Google authentication' });
     }
 });
+
 
 // POST - Login or register with Facebook
 router.post('/facebook', async (req, res) => {
@@ -127,9 +133,16 @@ router.post('/facebook', async (req, res) => {
             logger.info(`Existing Facebook user login id=${user.id}`);
         }
 
-        return res.json({
-            id: user.id,
-            username: user.name,
+        // Serialize
+        req.login(user, (err) => {
+            if (err) {
+                logger.error(`Session login error for Facebook user id=${user.id}: ${err.message}`);
+                return next(err);
+            }
+            return res.json({
+                id: user.id,
+                username: user.username
+            });
         });
 
     } catch (err) {

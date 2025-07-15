@@ -35,7 +35,12 @@ export const useSocialAuth = ({ navigate, setError, setLoading }) => {
                 version: 'v18.0'
             });
         };
+    
+        if (window.FB) {
+            window.fbAsyncInit();
+        }
     }, []);
+    
 
     // Handle Google login
     const handleGoogleResponse = async (response) => {

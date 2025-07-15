@@ -11,7 +11,7 @@ const addUser = (username, email, password) => {
 // Get user by Google ID
 const getUserByGoogleId = (googleId) => {
     return query(
-        'SELECT * FROM users WHERE google_id = $1',
+        'SELECT id, google_id, username, email FROM users WHERE google_id = $1',
         [googleId]
     );
 };

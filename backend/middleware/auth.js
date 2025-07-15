@@ -55,6 +55,8 @@ passport.use(
         try {
             const existingUser = await getUserByGoogleId(profile.id);
             if (existingUser.rows.length) {
+                user.id = user.id || user.ID || user.google_id;
+                console.log('>> Done with GoogleStrategy user:', existingUser.rows[0]);
                 return done(null, existingUser.rows[0]);
             }
 
@@ -63,6 +65,8 @@ passport.use(
                 username: profile.displayName,
                 email: profile.emails?.[0]?.value || null
             });
+
+            console.log('>> Done with GoogleStrategy new user:', newUser.rows[0]);
             return done(null, newUser.rows[0]);
         } catch (err) {
             logger.error('google auth error:', err);
@@ -100,20 +104,26 @@ passport.use(
 );
 
 // Serialize / Deserialize
-passport.serializeUser((user, done) => done(null, user.id));
+passport.serializeUser((user, done) => {
+    console.log('Serializing user:', user);
+    done(null, user.id);
+});
 
 passport.deserializeUser(async (id, done) => {
+    console.log('>> DESERIALIZING user id from session:', id);
     try {
         const userResult = await getUserById(id);
+        console.log('>> Found user from DB:', userResult.rows[0]);
         if (!userResult.rows.length) {
+            console.log('>> NO USER FOUND IN DB');
             return done(null, false);
         }
-
         done(null, userResult.rows[0]);
     } catch (err) {
-        logger.error('Deserialize error:', err);
+        console.log('>> ERROR IN DESERIALIZE:', err);
         done(err);
     }
 });
+
 
 module.exports = passport;
