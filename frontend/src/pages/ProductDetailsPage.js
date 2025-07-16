@@ -6,6 +6,7 @@ const ProductDetailsPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -38,7 +39,7 @@ const ProductDetailsPage = () => {
                 })
             });
             if (!response.ok) throw new Error('Could not add to cart');
-            alert('Product added to cart!');
+            setSuccessMessage('Product added to cart!');
         } catch(err) {
             alert(`Error: ${err.message}`);
         }
@@ -54,6 +55,7 @@ const ProductDetailsPage = () => {
             <h2>{product.name}</h2>
             <p>{product.description}</p>
             <button onClick={addToCart}>Add to Cart</button>
+            {successMessage && <p>{successMessage}</p>}
         </div>
     );
 };

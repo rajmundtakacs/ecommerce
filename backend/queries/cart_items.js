@@ -1,9 +1,25 @@
 const { query } = require('../db');
 
-// Get all items in a cart
-const getCartItems = (id) => {
-    return query('SELECT * FROM cart_items WHERE cart_id = $1', [id]);
+// Get all items in a cart, joined with product details
+const getCartItems = (cart_id) => {
+    return query(`
+        SELECT 
+            ci.cart_id,
+            ci.product_id,
+            ci.quantity,
+            ci.total_price,
+            p.name,
+            p.image,
+            p.price
+        FROM 
+            cart_items ci
+        JOIN 
+            products p ON ci.product_id = p.id
+        WHERE 
+            ci.cart_id = $1
+    `, [cart_id]);
 };
+
 
 // Adding or updating a cart item
 const addOrUpdateCartItem = async (cart_id, product_id, quantity) => {

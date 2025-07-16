@@ -33,14 +33,19 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET all carts for a user
-router.get('/user/:user_id', async (req, res) => {
+// GET all carts for the currently logged in user
+router.get('/current', async (req, res) => {
     try {
-        const { user_id } = req.params;
-        const result = await getCartsByUserId(user_id);
+        const userId = req.user?.id;
+        if (!userId) {
+            logger.warn('Unauthorized attempt to fetch cart');
+            return res.status(401).json({ error: 'Not logged in' });
+        }
+
+        const result = await getCartsByUserId(userId);
         res.json(result.rows);
     } catch (err) {
-        logger.error(`Error fetching cart(s) for user_id=${req.params.user_id}: ${err.message}`, { stack: err.stack });
+        logger.error(`Error fetching cart(s) for user_id=${req.user?.id}: ${err.message}`, { stack: err.stack });
         res.status(500).send('Error fetching cart(s)');
     }
 });
