@@ -13,6 +13,7 @@ const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/carts');
 const orderRoutes = require('./routes/orders');
 const authRoutes = require('./routes/auth');
+const stripeRoutes = require('./routes/stripe');
 
 const app = express();
 const PORT = 8000;
@@ -58,6 +59,7 @@ app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
 app.use('/orders', orderRoutes);
 app.use('/auth', authRoutes);
+app.use('/stripe', stripeRoutes);
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

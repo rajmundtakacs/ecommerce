@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import CartItems from '../components/CartItems';
 
 const CheckoutPage = () => {
     const [cartId, setCartId] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const [clientSecret, setClientSecret] = useState('');
+    const [amount, setAmount] = useState(0);
+
+    const stripe = useStripe();
+    const elements = useElements();
 
     useEffect(() => {
-        const fetchCart = async () => {
+        const fetchCartAndCreateIntent = async () => {
             try {
                 const responseCart = await fetch('/carts/current', {
                     credentials: 'include'
@@ -28,6 +35,19 @@ const CheckoutPage = () => {
                 if (!responseItems.ok) throw new Error('Failed to fetch cart items');
                 const items = await responseItems.json();
                 setCartItems(items);
+
+                const total = items.reduce((sum, item) => sum + parseFloat(item.total_price), 0);
+                setAmount(total);
+
+                const responseIntent = await fetch('/stripe/create-payment-intent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: Math.round(total * 100) })
+                });
+                if (!responseIntent.ok) throw new Error('Failed to create payment intent');
+                const intentData = await responseIntent.json();
+                setClientSecret(intentData.clientSecret);
+
             } catch (err) {
                 console.error(err);
                 setMessage(err.message);
@@ -35,22 +55,37 @@ const CheckoutPage = () => {
                 setLoading(false);
             }
         };
-        fetchCart();
+        fetchCartAndCreateIntent();
     }, []);
 
-    const handleCheckout = async () => {
-        try {
-            const response = await fetch('/carts/checkout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-            if (!response.ok) throw new Error('Checkout failed');
-            const data = await response.json();
-            setMessage(`Checkout successful! Order ID: ${data.order.id}`);
-            setCartItems([]);
-        } catch (err) {
-            console.error(err);
-            setMessage(err.message);
+    const handleCheckout = async (e) => {
+
+        e.preventDefault();
+        if (!stripe || !elements || !clientSecret) return;
+
+        const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: elements.getElement(CardElement),
+            }
+        });
+
+        if (result.error) {
+            console.error(result.error);
+            setMessage(result.error.message);
+        } else if (result.paymentIntent.status === 'succeeded') {
+            try {
+                const response = await fetch('/carts/checkout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Checkout failed');
+                const data = await response.json();
+                setMessage(`✅ Payment successful! Order ID: ${data.order.id}`);
+                setCartItems([]);
+            } catch (err) {
+                console.error(err);
+                setMessage(err.message);
+            }
         }
     };
 
@@ -59,14 +94,14 @@ const CheckoutPage = () => {
     return (
         <div>
             <h2>Checkout</h2>
-            <ul>
-                {cartItems.map(item => (
-                    <li key={item.product_id}>
-                        {item.name} - Qty: {item.quantity} - ${item.total_price}
-                    </li>
-                ))}
-            </ul>
-            <button onClick={handleCheckout}>Place order</button>
+            <CartItems items={cartItems} readonly />
+            <p>Total: ${amount.toFixed(2)}</p>
+            <form onSubmit={handleCheckout}>
+                <CardElement />
+                <button type="submit" disabled={!stripe || !clientSecret || amount <= 0}>
+                    Pay ${amount.toFixed(2)}
+                </button>
+            </form>
             {message && <p>{message}</p>}
         </div>
     )

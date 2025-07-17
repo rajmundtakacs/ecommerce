@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CartItems from '../components/CartItems';
 
 const CartPage = () => {
     const [cartId, setCartId] = useState(null);
@@ -57,14 +58,7 @@ const CartPage = () => {
     return (
         <div>
             <h2>Your Cart</h2>
-            <ul>
-                {cartItems.map(item => (
-                    <li key={item.product_id}>
-                        {item.name} - Qty: {item.quantity} - ${item.total_price}
-                        <button onClick ={() => removeItem(item.product_id)}>Remove</button>
-                    </li>
-                ))}
-            </ul>
+            <CartItems items={cartItems} onRemove={removeItem} />
             <Link to="/checkout">
                 <button>Proceed to Checkout</button>
             </Link>
