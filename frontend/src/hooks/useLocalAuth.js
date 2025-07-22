@@ -32,7 +32,7 @@ export const useLocalAuth = ({ navigate, setError, setLoading }) => {
                 throw new Error(loginError.error || 'Login unsuccessful');
             }
 
-            navigate('/');
+            return true;
 
         } catch (err) {
             console.error(err);
@@ -60,11 +60,12 @@ export const useLocalAuth = ({ navigate, setError, setLoading }) => {
                 throw new Error(loginError.error || 'Login unsuccessful');
             }
 
-            navigate('/');
+            return true;
 
         } catch (err) {
             console.error(err);
             setError(err.message);
+            throw err;
         } finally {
             setLoading(false);
         }

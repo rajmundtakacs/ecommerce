@@ -13,6 +13,15 @@ const {
     createUserWithFacebook
 } = require('../queries/auth');
 
+// GET - Current user from session
+router.get('/me', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ user: req.user });
+    } else {
+        res.status(401).json({ user: null });
+    }
+});
+
 // POST - Register a new user
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;

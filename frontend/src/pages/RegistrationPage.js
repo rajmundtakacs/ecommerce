@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLocalAuth } from '../hooks/useLocalAuth';
 import { useSocialAuth } from '../hooks/useSocialAuth';
 
@@ -26,10 +26,29 @@ const RegistrationPage = () => {
     // Handle register form submit
     const { handleRegister } = useLocalAuth({ navigate, setError, setLoading });
 
-    const handleSubmit = (e) => {
+    const location = useLocation();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        handleRegister({ username, email, password });
-    };
+      
+        setError('');
+        setLoading(true);
+      
+        try {
+          await handleRegister({ username, email, password });
+      
+          const searchParams = new URLSearchParams(location.search);
+          const returnTo = searchParams.get('returnTo') || '/';
+      
+          navigate(returnTo, { replace: true }); // ✅ tiszta redirect
+        } catch {
+          // error-t már kezeli a hook
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+
     
 
     return (

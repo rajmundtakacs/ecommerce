@@ -105,22 +105,17 @@ passport.use(
 
 // Serialize / Deserialize
 passport.serializeUser((user, done) => {
-    console.log('Serializing user:', user);
     done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
-    console.log('>> DESERIALIZING user id from session:', id);
     try {
         const userResult = await getUserById(id);
-        console.log('>> Found user from DB:', userResult.rows[0]);
         if (!userResult.rows.length) {
-            console.log('>> NO USER FOUND IN DB');
             return done(null, false);
         }
         done(null, userResult.rows[0]);
     } catch (err) {
-        console.log('>> ERROR IN DESERIALIZE:', err);
         done(err);
     }
 });

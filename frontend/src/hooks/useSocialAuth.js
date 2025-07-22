@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export const useSocialAuth = ({ navigate, setError, setLoading }) => {
+export const useSocialAuth = ({ navigate, setError, setLoading, returnTo }) => {
 
     // Parse JWT (Google)
     const parseJwt = (token) => {
@@ -66,7 +66,7 @@ export const useSocialAuth = ({ navigate, setError, setLoading }) => {
                 throw new Error(data.error || 'Google login failed');
             }
 
-            navigate('/');
+            navigate(returnTo, { replace: true });
 
         } catch (err) {
             console.error(err);
@@ -117,7 +117,8 @@ export const useSocialAuth = ({ navigate, setError, setLoading }) => {
                         throw new Error(data.error || 'Facebook login failed');
                     }
 
-                    navigate('/');
+                    navigate(returnTo, { replace: true });
+                    
                 } catch (err) {
                     console.error(err);
                     setError(err.message);

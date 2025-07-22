@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLocalAuth } from '../hooks/useLocalAuth';
 import { useSocialAuth } from '../hooks/useSocialAuth';
 
 
 const LoginPage = () => {
-
-    const navigate = useNavigate();
 
     // States
     const [email, setEmail] = useState('');
@@ -16,19 +14,42 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const returnTo = searchParams.get('returnTo') || '/';
+
     const { handleGoogleResponse, handleFacebookLogin } = useSocialAuth({
         navigate,
         setError,
-        setLoading
+        setLoading,
+        returnTo
     });
 
     
     const { handleLogin } = useLocalAuth({ navigate, setError, setLoading });
 
-    const handleSubmit = (e) => {
+    
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        handleLogin({ email, password });
-    };
+      
+        setError('');
+        setLoading(true);
+
+        
+      
+        try {
+          await handleLogin({ email, password });
+      
+          navigate(returnTo, { replace: true });
+        } catch {
+          // error already handled in hook
+        } finally {
+          setLoading(false);
+        }
+      };
+      
 
     return (
         <div>

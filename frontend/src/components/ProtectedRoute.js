@@ -1,17 +1,19 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useLocalAuth } from '../hooks/useLocalAuth';
-import { useSocialAuth } from '../hooks/useSocialAuth';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 const ProtectedRoute = ({ children }) => {
-  const { user: localUser } = useLocalAuth();
-  const { user: socialUser } = useSocialAuth();
+  const { user, loading } = useCurrentUser();
   const location = useLocation();
 
-  const user = localUser || socialUser;
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   if (!user) {
-    return <Navigate to={`/login?returnTo=${location.pathname}`} replace />;
+    const redirectPath = `/login?returnTo=${location.pathname}`;
+    return <Navigate to={redirectPath} replace />;
   }
+  
 
   return children;
 };
