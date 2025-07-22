@@ -10,8 +10,9 @@ import ProductsPage from './pages/ProductsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// saját publikus kulcsod (Dashboard > Developers > API keys > Publishable key)
+
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISH_KEY);
 
 function App() {
@@ -23,12 +24,21 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
-        <Route path="/cart" element={<CartPage />} />
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <CartPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/checkout"
           element={
             <Elements stripe={stripePromise}>
-              <CheckoutPage />
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
             </Elements>
           }
         />

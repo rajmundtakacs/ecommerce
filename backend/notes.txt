@@ -3,4 +3,5 @@
 - Update swagger doc!
 - Email variables back for FB login LIVE mode!
 - session is not good with google and facebook login...user id is not there
+- Admin role (ensureAdmin middleware...)
 

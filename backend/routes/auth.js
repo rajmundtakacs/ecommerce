@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const passport = require('../middleware/auth');
 const logger = require('../utils/logger');
+const ensureAuthenticated = require('../middleware/ensureAuthenticated');
 
 const {
     addUser,
@@ -152,7 +153,7 @@ router.post('/facebook', async (req, res) => {
 });
 
 // POST - Logout
-router.post('/logout', (req, res, next) => {
+router.post('/logout', ensureAuthenticated, (req, res, next) => {
     req.logout(function(err) {
         if (err) {
             logger.error('Logout error:', err);
