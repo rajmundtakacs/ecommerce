@@ -11,6 +11,17 @@ const {
     getOrderItems
 } = require('../queries/orders');
 
+// GET - Orders for current session user
+router.get('/me', ensureAuthenticated, async (req, res) => {
+    try {
+      const result = await getOrdersByUserId(req.user.id);
+      res.json(result.rows);
+    } catch (err) {
+      logger.error(`Failed to fetch orders for user ${req.user.id}: ${err.message}`);
+      res.status(500).send('Failed to fetch orders');
+    }
+});
+
 // GET all orders
 router.get('/', ensureAuthenticated, async (req, res) => {
     try {
