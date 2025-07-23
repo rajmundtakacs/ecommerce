@@ -12,16 +12,24 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
+import Navbar from './components/NavBar';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useCurrentUser } from './hooks/useCurrentUser';
 
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISH_KEY);
 
 function App() {
+
+  const {user, loading} = useCurrentUser();
+
+  if (loading) return <div>Loading...</div>;
+
   return (
     <Router>
+      <Navbar user={user} />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage user={user} />} />
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/products" element={<ProductsPage />} />

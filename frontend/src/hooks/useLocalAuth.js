@@ -1,4 +1,4 @@
-export const useLocalAuth = ({ navigate, setError, setLoading }) => {
+export const useLocalAuth = ({ navigate, setUser, setError, setLoading }) => {
 
     // Handle register
     const handleRegister = async ({ username, email, password }) => {
@@ -81,7 +81,6 @@ export const useLocalAuth = ({ navigate, setError, setLoading }) => {
                 method: 'POST',
                 credentials: 'include'
             });
-
             navigate('/login');
         } catch (err) {
             console.error('Logout failed', err);
