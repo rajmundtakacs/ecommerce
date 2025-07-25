@@ -38,12 +38,14 @@ app.get('/', (req, res) => {
 });
 
 // Setup Express-session middleware to manage user sessions
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       httpOnly: true,
       sameSite: 'lax'
     }
