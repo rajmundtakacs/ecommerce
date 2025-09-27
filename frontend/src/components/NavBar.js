@@ -1,39 +1,72 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { useLocalAuth } from '../hooks/useLocalAuth';
 
-
 const Navbar = ({ user }) => {
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
+  const { handleLogout } = useLocalAuth({
+    navigate,
+    setError,
+    setLoading,
+  });
 
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const linkClass = ({ isActive }) =>
+    `px-3 py-2 rounded-md text-sm font-medium ${
+      isActive
+        ? 'text-brand-600 bg-brand-50'
+        : 'text-zinc-600 hover:text-brand-600 hover:bg-zinc-50'
+    }`;
 
-    const { handleLogout } = useLocalAuth({
-        navigate,
-        setError,
-        setLoading,  
-      });
+  return (
+    <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="text-lg font-semibold text-brand-600">
+            PERN Shop
+          </Link>
 
-    return (
-        <nav>
-            <Link to="/">-Home</Link>
-            <Link to="/products">-Shop</Link>
+          {/* Nav links */}
+          <nav className="flex items-center gap-4">
+            <NavLink to="/" className={linkClass}>
+              Home
+            </NavLink>
+            <NavLink to="/products" className={linkClass}>
+              Shop
+            </NavLink>
             {user ? (
-                <>
-                <Link to ="/cart">-Cart</Link>
-                <Link to ="/orders">-Orders-</Link>
-                <button onClick={handleLogout}>Logout</button>
-                </>
+              <>
+                <NavLink to="/cart" className={linkClass}>
+                  Cart
+                </NavLink>
+                <NavLink to="/orders" className={linkClass}>
+                  Orders
+                </NavLink>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
-                <>
-                <Link to ="/login">-Login-</Link>
-                <Link to ="/register">-Register-</Link>
-                </>
+              <>
+                <NavLink to="/login" className={linkClass}>
+                  Login
+                </NavLink>
+                <NavLink to="/register" className={linkClass}>
+                  Register
+                </NavLink>
+              </>
             )}
-        </nav>
-    );
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
 };
 
 export default Navbar;
