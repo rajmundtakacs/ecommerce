@@ -16,48 +16,74 @@ const authRoutes = require('./routes/auth');
 const stripeRoutes = require('./routes/stripe');
 
 const app = express();
-const PORT = 8000;
+const isProd = process.env.NODE_ENV === 'production';
+const PORT = process.env.PORT || 8000;
 
-// Helmet security headers
+// Biztonsági headerek
 app.use(helmet());
 
-// CORS middleware
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
-}));
+// Engedélyezett frontok
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_STAGING,
+  'http://localhost:3000',
+].filter(Boolean);
 
-// Setting up Swagger UI route
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
-
-app.use(express.json()); // Middleware for parsing JSON req bodies
-
-// root
-app.get('/', (req, res) => {
-    res.redirect('/api-docs');
+// Diagnosztikai log
+app.use((req, _res, next) => {
+  console.log(`[req] ${req.method} ${req.originalUrl} | origin:${req.headers.origin} | cookies:${req.headers.cookie ? 'y' : 'n'}`);
+  next();
 });
 
-const isProd = process.env.NODE_ENV === 'production';
+// CORS (origin callback + preflight)
+app.use(cors({
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
+}));
+app.options('*', cors({
+  origin(origin, cb) {
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error('CORS preflight blocked'));
+  },
+  credentials: true,
+}));
 
+// Swagger
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
+// JSON parser
+app.use(express.json());
+
+// Root → Swagger
+app.get('/', (req, res) => res.redirect('/api-docs'));
+
+// Proxy bizalom a secure cookie-hoz
 app.set('trust proxy', 1);
 
+// Session cookie (env-alapú)
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProd,                        
+    secure: isProd,
     httpOnly: true,
-    sameSite: isProd ? 'none' : 'lax',     
-  }
+    sameSite: isProd ? 'none' : 'lax',
+  },
 }));
 
-// Initialize Passport middleware (for authentication handling)
+// Passport
 app.use(passport.initialize());
-// Enable Passport middleware to use session-based authentication (combine the passport middleware and express-session)
 app.use(passport.session());
 
-// Attaching routes to the app
+// API route-ok
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/carts', cartRoutes);
@@ -65,10 +91,13 @@ app.use('/orders', orderRoutes);
 app.use('/auth', authRoutes);
 app.use('/stripe', stripeRoutes);
 
-// Serve static files from the uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Statikus képek (uploads)
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
-
+// Start
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT} (NODE_ENV=${process.env.NODE_ENV})`);
 });
