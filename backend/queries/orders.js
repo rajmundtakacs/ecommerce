@@ -18,7 +18,7 @@ const getOrderById = async (id) => {
 // Get all items for a specific order
 const getOrderItems = async (id) => {
     return query(
-        `SELECT oi.*, p.name, p.description
+        `SELECT oi.*, p.name, p.description, p.image
         FROM order_items oi 
         JOIN products p ON oi.product_id = p.id
         WHERE oi.order_id = $1`,
