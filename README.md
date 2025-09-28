@@ -75,13 +75,13 @@ CREATE DATABASE ecommerce;
 
 8. Start the backend:
 ```bash
-npm run dev;
+npm run dev
 ```
 The backend will run at http://localhost:8000
 
 9.  Start the frontend:
 ```bash
-npm start;
+npm start
 ```
 The frontend will run at http://localhost:3000
 
