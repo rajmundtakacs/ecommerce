@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, NavLink } from 'react-router-dom';
-import { useLocalAuth } from '../hooks/useLocalAuth';
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 
-const Navbar = ({ user }) => {
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const { handleLogout } = useLocalAuth({
-    navigate,
-    setError,
-    setLoading,
-  });
-
+const Navbar = ({ cartCount = 0 }) => {
   const linkClass = ({ isActive }) =>
-    `px-3 py-2 rounded-md text-sm font-medium ${
+    `relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
       isActive
-        ? 'text-brand-600 bg-brand-50'
-        : 'text-zinc-600 hover:text-brand-600 hover:bg-zinc-50'
+        ? 'text-indigo-600 bg-indigo-50'
+        : 'text-zinc-600 hover:text-indigo-600 hover:bg-zinc-50'
     }`;
 
   return (
@@ -25,43 +14,28 @@ const Navbar = ({ user }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="text-lg font-semibold text-brand-600">
+          <Link to="/" className="text-lg font-semibold text-indigo-600">
             PERN Shop
           </Link>
 
           {/* Nav links */}
           <nav className="flex items-center gap-4">
-            <NavLink to="/" className={linkClass}>
-              Home
-            </NavLink>
-            <NavLink to="/products" className={linkClass}>
-              Shop
-            </NavLink>
-            {user ? (
-              <>
-                <NavLink to="/cart" className={linkClass}>
-                  Cart
-                </NavLink>
-                <NavLink to="/orders" className={linkClass}>
-                  Orders
-                </NavLink>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600"
+            <NavLink to="/" className={linkClass}>Home</NavLink>
+            <NavLink to="/products" className={linkClass}>Shop</NavLink>
+            <NavLink to="/cart" className={linkClass}>
+              Cart
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-600 text-white"
+                  aria-label={`${cartCount} items in cart`}
                 >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <NavLink to="/login" className={linkClass}>
-                  Login
-                </NavLink>
-                <NavLink to="/register" className={linkClass}>
-                  Register
-                </NavLink>
-              </>
-            )}
+                  {cartCount}
+                </span>
+              )}
+            </NavLink>
+            <NavLink to="/orders" className={linkClass}>Orders</NavLink>
+            <NavLink to="/login" className={linkClass}>Login</NavLink>
+            <NavLink to="/register" className={linkClass}>Register</NavLink>
           </nav>
         </div>
       </div>
