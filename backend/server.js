@@ -37,17 +37,21 @@ app.get('/', (req, res) => {
     res.redirect('/api-docs');
 });
 
-// Setup Express-session middleware to manage user sessions
+const isProd = process.env.NODE_ENV === 'production';
+
+app.set('trust proxy', 1);
+
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      sameSite: 'lax'
-    }
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: isProd,                        
+    httpOnly: true,
+    sameSite: isProd ? 'none' : 'lax',     
+  }
 }));
+
 // Initialize Passport middleware (for authentication handling)
 app.use(passport.initialize());
 // Enable Passport middleware to use session-based authentication (combine the passport middleware and express-session)
