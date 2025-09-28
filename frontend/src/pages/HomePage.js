@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const HomePage = () => {
   return (
     <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
-      {/* 4rem ≈ h-16 navbar magasság; igazítsd ha más a navbar */}
+      
       <div className="max-w-4xl w-full text-center">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900">
           Welcome to <span className="text-indigo-600">PERN Shop</span> 🎉
