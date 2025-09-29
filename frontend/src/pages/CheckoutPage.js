@@ -28,7 +28,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchCartAndCreateIntent = async () => {
       try {
-        const responseCart = await fetch('/carts/current', { credentials: 'include' });
+        const responseCart = await fetch(`${process.env.REACT_APP_API_URL}/carts/current`, { credentials: 'include' });
         if (!responseCart.ok) throw new Error('Failed to fetch cart');
         const carts = await responseCart.json();
         if (!carts || carts.length === 0) {
@@ -38,7 +38,7 @@ const CheckoutPage = () => {
         const cart_id = carts[0].id;
         setCartId(cart_id);
 
-        const responseItems = await fetch(`/carts/${cart_id}/items`, { credentials: 'include' });
+        const responseItems = await fetch(`${process.env.REACT_APP_API_URL}/carts/${cart_id}/items`, { credentials: 'include' });
         if (!responseItems.ok) throw new Error('Failed to fetch cart items');
         const items = await responseItems.json();
         setCartItems(items);
@@ -46,7 +46,7 @@ const CheckoutPage = () => {
         const total = items.reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
         setAmount(total);
 
-        const responseIntent = await fetch('/stripe/create-payment-intent', {
+        const responseIntent = await fetch(`${process.env.REACT_APP_API_URL}/stripe/create-payment-intent`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: Math.round(total * 100) })
@@ -77,7 +77,7 @@ const CheckoutPage = () => {
       setMessage(result.error.message || 'Payment failed.');
     } else if (result.paymentIntent.status === 'succeeded') {
       try {
-        const response = await fetch('/carts/checkout', { method: 'POST', credentials: 'include' });
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/carts/checkout`, { method: 'POST', credentials: 'include' });
         if (!response.ok) throw new Error('Checkout failed');
         const data = await response.json();
         setMessage(`✅ Payment successful! Order ID: ${data.order.id}`);
