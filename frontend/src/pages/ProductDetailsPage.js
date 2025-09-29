@@ -11,7 +11,7 @@ const ProductDetailsPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`/products/${id}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/products/${id}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         const data = await res.json();
         setProduct(data);
@@ -27,7 +27,7 @@ const ProductDetailsPage = () => {
 
   const addToCart = async () => {
     try {
-      const res = await fetch("/carts/items", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/carts/items`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
