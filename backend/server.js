@@ -19,7 +19,10 @@ const app = express();
 const PORT = 8000;
 
 // Helmet security headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  }));
+  
 
 app.set('trust proxy', 1);
 
