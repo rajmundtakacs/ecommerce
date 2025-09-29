@@ -39,6 +39,32 @@ const LoginPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (!window.google) return; // script még nem töltődött be
+
+    window.google.accounts.id.initialize({
+      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse,     
+      auto_select: false,                 
+      ux_mode: 'popup',                 
+    });
+
+    const el = document.getElementById('googleSignInDiv');
+    if (el) {
+      window.google.accounts.id.renderButton(el, {
+        type: 'standard',                 
+        theme: 'outline',                
+        size: 'large',                    
+        shape: 'pill',
+        text: 'signin_with',
+        logo_alignment: 'left',
+        width: '100%',
+      });
+    }
+
+    window.google.accounts.id.cancel();
+  }, [handleGoogleResponse]);
+
   return (
     <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
