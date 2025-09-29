@@ -7,7 +7,7 @@ export const useCurrentUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('/auth/me', {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/me`, {
           credentials: 'include',
         });
         if (!res.ok) throw new Error();

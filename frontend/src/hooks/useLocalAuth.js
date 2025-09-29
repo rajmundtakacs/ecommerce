@@ -7,7 +7,7 @@ export const useLocalAuth = ({ navigate, setUser, setError, setLoading }) => {
 
         try {
             // 1. Registration
-            const registerResponse = await fetch('/auth/register', {
+            const registerResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
@@ -20,7 +20,7 @@ export const useLocalAuth = ({ navigate, setUser, setError, setLoading }) => {
             }
 
             // 2. Auto-login
-            const loginResponse = await fetch('/auth/login', {
+            const loginResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
@@ -48,7 +48,7 @@ export const useLocalAuth = ({ navigate, setUser, setError, setLoading }) => {
         setLoading(true);
 
         try {
-            const loginResponse = await fetch('/auth/login', {
+            const loginResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
@@ -77,7 +77,7 @@ export const useLocalAuth = ({ navigate, setUser, setError, setLoading }) => {
             setLoading(true);
             setError('');
 
-            await fetch('/auth/logout', {
+            await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
                 method: 'POST',
                 credentials: 'include'
             });

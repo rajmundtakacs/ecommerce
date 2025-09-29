@@ -50,7 +50,7 @@ export const useSocialAuth = ({ navigate, setError, setLoading, returnTo }) => {
         try {
             const payload = parseJwt(response.credential);
 
-            const result = await fetch('/auth/google', {
+            const result = await fetch(`${process.env.REACT_APP_API_URL}/auth/google`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
@@ -102,7 +102,7 @@ export const useSocialAuth = ({ navigate, setError, setLoading, returnTo }) => {
                 }
 
                 try {
-                    const result = await fetch('/auth/facebook', {
+                    const result = await fetch(`${process.env.REACT_APP_API_URL}/auth/facebook`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
