@@ -21,9 +21,11 @@ const PORT = 8000;
 // Helmet security headers
 app.use(helmet());
 
+app.set('trust proxy', 1);
+
 // CORS middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
 
@@ -37,7 +39,7 @@ app.get('/', (req, res) => {
     res.redirect('/api-docs');
 });
 
-app.set('trust proxy', 1);
+
 
 // Setup Express-session middleware to manage user sessions
 app.use(session({
