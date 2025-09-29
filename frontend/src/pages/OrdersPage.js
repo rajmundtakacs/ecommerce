@@ -9,7 +9,7 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('/orders/me', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/orders/me`, {
           method: 'GET',
           credentials: 'include',
         });

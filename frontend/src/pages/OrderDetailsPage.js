@@ -13,7 +13,7 @@ const OrderDetailsPage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const orderResponse = await fetch(`/orders/${id}`, { credentials: 'include' });
+        const orderResponse = await fetch(`${process.env.REACT_APP_API_URL}/orders/${id}`, { credentials: 'include' });
         if (orderResponse.status === 401) return navigate('/login');
         if (orderResponse.status === 403) return navigate('/orders');
         if (!orderResponse.ok) throw new Error('Failed to fetch order');
@@ -21,7 +21,7 @@ const OrderDetailsPage = () => {
         const orderData = await orderResponse.json();
         setOrder(orderData);
 
-        const itemsResponse = await fetch(`/orders/${id}/items`, { credentials: 'include' });
+        const itemsResponse = await fetch(`${process.env.REACT_APP_API_URL}/orders/${id}/items`, { credentials: 'include' });
         if (!itemsResponse.ok) throw new Error('Could not load items for this order.');
         const itemsData = await itemsResponse.json();
         setItems(itemsData);
