@@ -37,6 +37,8 @@ app.get('/', (req, res) => {
     res.redirect('/api-docs');
 });
 
+app.set('trust proxy', 1);
+
 // Setup Express-session middleware to manage user sessions
 app.use(session({
     secret: process.env.SESSION_SECRET,
