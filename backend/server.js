@@ -43,9 +43,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: true,
       httpOnly: true,
-      sameSite: 'lax'
+      sameSite: 'none'
     }
 }));
 // Initialize Passport middleware (for authentication handling)
