@@ -10,7 +10,7 @@ const CartItems = ({ items, onRemove, readonly }) => (
         key={item.product_id}
         className="py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        {/* Bal oldal: kép + név + qty */}
+        {/* Left side: image + name + qty */}
         <div className="flex items-center gap-4">
           {item.image && (
             <img
@@ -26,7 +26,7 @@ const CartItems = ({ items, onRemove, readonly }) => (
           </div>
         </div>
 
-        {/* Jobb oldal: ár + remove */}
+        {/* Right side: price + remove */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <span className="text-sm font-medium text-zinc-900">
             {fmt(item.total_price)}

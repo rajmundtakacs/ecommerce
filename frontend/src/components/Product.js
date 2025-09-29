@@ -5,7 +5,7 @@ const Product = ({ product }) => {
   return (
     <div className="group rounded-2xl border bg-white shadow-sm hover:shadow-md transition overflow-hidden">
       <Link to={`/products/${product.id}`} className="flex flex-col h-full">
-        {/* kép */}
+        {/* image */}
         <div className="aspect-square bg-zinc-100 flex items-center justify-center overflow-hidden">
           <img
             src={product.image}
@@ -15,7 +15,7 @@ const Product = ({ product }) => {
           />
         </div>
 
-        {/* tartalom */}
+        {/* content */}
         <div className="p-4 flex flex-col flex-1">
           <h2 className="text-lg font-semibold text-zinc-900 line-clamp-1">
             {product.name}

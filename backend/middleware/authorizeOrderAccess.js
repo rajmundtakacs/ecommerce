@@ -4,7 +4,6 @@ const logger = require('../utils/logger');
 async function authorizeOrderAccess(req, res, next) {
   const orderId = req.params.id;
 
-  // Biztonsági ellenőrzés: csak pozitív szám
   if (!/^\d+$/.test(orderId)) {
     logger.warn(`Invalid order ID format: ${orderId}`);
     return res.status(400).json({ error: 'Invalid order ID format' });

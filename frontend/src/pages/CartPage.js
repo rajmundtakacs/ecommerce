@@ -48,7 +48,6 @@ const CartPage = () => {
     }
   };
 
-  // Optional subtotal (only if items have price & quantity)
   const subtotal = useMemo(() => {
     if (!cartItems?.length) return 0;
     return cartItems.reduce((sum, it) => {

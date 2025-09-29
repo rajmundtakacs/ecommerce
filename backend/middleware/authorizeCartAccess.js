@@ -18,7 +18,7 @@ async function authorizeCartAccess(req, res, next) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    req.cart = cart; // opcionálisan továbbvihető
+    req.cart = cart;
     next();
   } catch (err) {
     logger.error(`Authorization error for cart ${cartId}: ${err.message}`, { stack: err.stack });
