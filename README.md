@@ -5,6 +5,9 @@ The app supports both local authentication (email/password) and social login (Go
 
 ---
 
+## Live Demo
+[Click here to try the live version on Render](https://ecommerce-a7nm.onrender.com)
+
 Payments are integrated with **Stripe Sandbox mode**.  
 Use test cards like `4242 4242 4242 4242` (any future expiration date, CVC: 123) to simulate purchases.
 
